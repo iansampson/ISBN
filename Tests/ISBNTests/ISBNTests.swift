@@ -74,10 +74,25 @@ final class ISBNTests: XCTestCase {
         XCTAssertThrowsError(try ISBN(string: "98245726788"))
     }
     
+    /*func testHyphenation() {
+        print("===")
+        let isbn = 3598215
+        let length = Length.countryCodes[0].rules.filter {
+            $0.range.contains(isbn)
+        }.first?.length
+        print(length)
+        let length2 = Length.registrationGroups[0].rules.filter {
+            $0.range.contains(isbn)
+        }.first?.length
+        print(length2)
+        print("===")
+    }*/
     
-    // TODO: Add tests for ISBN13.
-    // TODO: Add tests for ISBN properties.
-    // TODO: Add tests for different hyphenation patterns.
+    // TODO: Test ISBN13.
+    // TODO: Test ISBN properties.
+    // TODO: Test different hyphenation patterns.
+    // TODO: Test Unicode hyphens.
+    // TODO: Test equivalence between ISBN10 and ISBN13.
     
     static var allTests = [
         // TODO: Add tests to allTests.

@@ -14,6 +14,8 @@ extension ISBN {
         case invalidChecksum(stored: Int, generated: Int)
         case invalidLength(Int)
         case emptyString
+        
+        case invalidRange
     }
 }
 

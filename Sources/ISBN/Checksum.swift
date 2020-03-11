@@ -118,6 +118,7 @@ extension Checksum {
         case nine   = 9
         case ten    = 10
     }
+    // TODO: Remove and replace with ISBN.Digit.
 }
 
 extension Checksum.Digit {

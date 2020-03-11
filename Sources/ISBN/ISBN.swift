@@ -8,6 +8,9 @@
 // TODO: Allow unhyphenated ISBNs.
 // TODO: Allow method for comparing ISBN10 and ISBN13
 //       (which is already possible with Equatable).
+// TODO: Implement Codable (by encoding the ISBN
+//       to a string – with hyphenation).
+// TODO: Add .string func (with or without hyphenation).
 
 struct ISBN: Equatable {
     let countryCode: CountryCode
