@@ -6,9 +6,12 @@
 //
 
 // MARK: - Checksum
+
 struct Checksum: Equatable {
     let digit: Digit
-    
+}
+
+extension Checksum {
     init(_ character: Character, format: ISBN.Format) throws {
         if character == "X" && format == .isbn10 {
             self.digit = .ten
@@ -26,7 +29,9 @@ struct Checksum: Equatable {
     }
 }
 
+
 // MARK: - ISBN
+
 extension ISBN {
     func checksum(format: Format) -> Checksum {
         switch format {
@@ -53,7 +58,9 @@ extension ISBN {
     }
 }
 
+
 // MARK: - Calculation
+
 private extension Checksum {
     enum Multiplier: Int {
         case tick = 1
@@ -66,10 +73,10 @@ private extension Checksum {
         }
     }
     
-    static func sum(first9Digits digits: [Int]) -> Int {
+    static func sum<C>(first9Digits digits: C) -> Int where C : Collection, C.Element == Int {
         guard digits.count == 9 else {
             fatalError()
-        }
+        } // TODO: Consider throwing an error instead.
         
         var sum = 0
         var multiplier = 10
@@ -86,7 +93,7 @@ private extension Checksum {
         }
     }
     
-    static func sum(first12Digits digits: [Int]) -> Int {
+    static func sum<C>(first12Digits digits: C) -> Int where C : Collection, C.Element == Int {
         guard digits.count == 12 else {
             fatalError()
         }
@@ -103,8 +110,12 @@ private extension Checksum {
     }
 }
 
+
 // MARK: - Digit
+
 extension Checksum {
+    // TODO: Consider using UInt8.
+    // or just a plain enum with a switch to return an Int.
     enum Digit: Int {
         case zero   = 0
         case one    = 1
@@ -127,5 +138,70 @@ extension Checksum.Digit {
             throw Error.invalidDigit
         }
         self = digit
+    }
+}
+
+
+// MARK: - Parsable
+
+extension Checksum: Parsable {
+    typealias Input = (digitsBeforeChecksum: [Int], format: ISBN.Format)
+    
+    static func parse(_ input: State<Input>) throws -> State<Checksum> {
+        let integers = input.value.digitsBeforeChecksum
+        
+        guard let nextDigit = input.stream.first else {
+            fatalError()
+            // TODO: Consider throwing Error.stringTooShort instead
+            // Or Error.missingChecksum
+        }
+        
+        guard let parsedChecksum = nextDigit.wholeNumberValue else {
+            // TODO: Check for X.
+            throw ISBN.Error.invalidCharacter
+        }
+        // TODO: Test efficiency. And consider using .wholeNumberValue elsewhere.
+        
+        let expectedChecksum: Int
+        switch input.value.format {
+        case .isbn10:
+            expectedChecksum = Checksum.sum(first9Digits: integers)
+        case .isbn13:
+            expectedChecksum = Checksum.sum(first12Digits: integers)
+        }
+        
+        guard parsedChecksum == expectedChecksum else {
+            throw ISBN.Error.invalidChecksum(
+                stored: parsedChecksum,
+                generated: expectedChecksum
+            )
+            // TODO: Rename to parsed and expected.
+        }
+        
+        return State(
+            stream: input.stream.dropFirst(), // TODO: Ensure digits.isEmpty
+            value: try Checksum(expectedChecksum)
+        )
+    }
+}
+
+extension Checksum.Digit: CustomStringConvertible {
+    var description: String {
+        String(rawValue)
+    }
+}
+
+extension Checksum {
+    init<C>(_ digits: C, format: ISBN.Format) throws where C : Collection, C.Element == Int {
+        switch format {
+        case .isbn10:
+            try self.init(
+                Checksum.sum(first9Digits: digits)
+            )
+        case .isbn13:
+            try self.init(
+                Checksum.sum(first12Digits: digits)
+            )
+        }
     }
 }

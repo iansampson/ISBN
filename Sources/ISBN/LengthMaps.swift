@@ -8,15 +8,15 @@
 protocol LengthMap {
     var rules: [Rule] { get }
 }
-
+//
 extension LengthMap {
-    func length(for firstSevenDigitsAfterCountryCode: Digits) -> Int? {
-        guard firstSevenDigitsAfterCountryCode.count == 7 else {
+    func length(for firstSevenDigitsAfterCountryCode: Int) -> Int? {
+        /*guard firstSevenDigitsAfterCountryCode.count == 7 else {
             fatalError()
-        }
+        }*/
         // TODO: Consider parsing the digits yourself.
         return rules.first {
-            $0.range.contains(firstSevenDigitsAfterCountryCode.singleInteger)
+            $0.range.contains(firstSevenDigitsAfterCountryCode)
         }?.length
     }
 }
@@ -67,5 +67,8 @@ enum Length {
         )
     ]
 }
+
+// TODO: Add remaining registration groups.
+// TODO: Store registration group agency with ISBN.
 
 // CountryCode -> RegistrationGroup -> Registrant

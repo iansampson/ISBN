@@ -12,3 +12,16 @@ extension Character {
         || self == "\u{2212}"
     }
 }
+
+struct OptionalHyphen<Value>: Parsable {
+    static func parse(_ input: State<Value>) throws -> State<Value> {
+        var remainingStream = input.stream
+        if
+            let character = remainingStream.popFirst(),
+            character.isHyphen
+        {
+            return State(stream: remainingStream, value: input.value)
+        }
+        return input
+    }
+}
