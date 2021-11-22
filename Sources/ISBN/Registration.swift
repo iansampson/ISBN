@@ -15,9 +15,7 @@ struct Registration: Parsable {
     static func parse(_ input: State<Input>) throws -> State<Self> {
         let resultA = try RegistrationGroup.parse(input)
         let resultB = try OptionalHyphen.parse(resultA)
-        print(resultB.stream)
         let resultC = try Registrant.parse(resultB)
-        print(resultC.stream)
         let resultD = try OptionalHyphen.parse(resultC)
         let resultE = try Publication.parse(resultD)
         return resultE

@@ -13,7 +13,7 @@ struct Checksum: Equatable {
 
 extension Checksum {
     init(_ character: Character, format: ISBN.Format) throws {
-        if character == "X" && format == .isbn10 {
+        if (character == "X" || character == "x") && format == .isbn10 {
             self.digit = .ten
             return
         }
@@ -154,8 +154,12 @@ extension Checksum: Parsable {
             throw ISBN.Error.missingChecksum
         }
         
-        guard let parsedChecksum = nextDigit.wholeNumberValue else {
-            // TODO: Check for X.
+        let parsedChecksum: Int
+        if nextDigit == "X" || nextDigit == "x" {
+            parsedChecksum = 10
+        } else if let value = nextDigit.wholeNumberValue {
+            parsedChecksum = value
+        } else {
             throw ISBN.Error.invalidCharacter
         }
         // TODO: Test efficiency. And consider using .wholeNumberValue elsewhere.
@@ -185,7 +189,11 @@ extension Checksum: Parsable {
 
 extension Checksum.Digit: CustomStringConvertible {
     var description: String {
-        String(rawValue)
+        if rawValue == 10 {
+            return "X"
+        } else {
+            return String(rawValue)
+        }
     }
 }
 

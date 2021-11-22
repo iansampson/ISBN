@@ -69,6 +69,15 @@ final class ISBN2Tests: XCTestCase {
         XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: false),
                        "9783484701533")
     }
+    
+    func testParseChecksumX() throws {
+        // When
+        let isbn = try ISBN("3-598-21507-X")
+        
+        // Then
+        XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: true),
+                       "3-598-21507-X")
+    }
 }
 
 // TODO: Return correct checksum digit.
