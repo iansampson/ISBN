@@ -18,7 +18,7 @@ public struct ISBN: Hashable {
 }
 
 extension ISBN {
-    public init(_ string: String) throws {
+    public init<S>(_ string: S) throws where S: StringProtocol, S.SubSequence == Substring {
         let input = State(stream: string[...], value: ())
         do {
             self = try ISBN13.parse(input).value
