@@ -136,31 +136,50 @@ struct ISBN13: Parsable {
 }
 
 extension ISBN {
-    func hyphenated(format: Format) -> String {
+    var string: String {
+        guard let string = string(format: .isbn13, hyphenated: true) else {
+            fatalError()
+        }
+        return string
+    }
+    
+    func string(format: Format, hyphenated: Bool = true) -> String? {
         switch format {
         case .isbn13:
-            return hyphenatedISBN13
+            if hyphenated {
+                return isbn13Components.joined(separator: "-")
+            } else {
+                return isbn13Components.joined()
+            }
         case .isbn10:
-            return hyphenatedISBN10
+            guard let components = isbn10Components else {
+                return nil
+            }
+            
+            if hyphenated {
+                return components.joined(separator: "-")
+            } else {
+                return components.joined()
+            }
         }
     }
     
-    var hyphenatedISBN10: String {
-        let b = String(registrationGroup.value)
-        let c = String(registrant.value)
-        let d = String(publication.value)
-        let e = isbn10checksum.digit.description
+    var isbn10Components: [String]? {
+        guard countryCode == .bookland else {
+            return nil
+        }
         
-        return b + "-" + c + "-" + d + "-" + e
+        return [String(registrationGroup.value),
+                String(registrant.value),
+                String(publication.value),
+                isbn10checksum.digit.description]
     }
     
-    var hyphenatedISBN13: String {
-        let a = countryCode.string
-        let b = String(registrationGroup.value)
-        let c = String(registrant.value)
-        let d = String(publication.value)
-        let e = isbn13Checksum.digit.description
-        
-        return a + "-" + b + "-" + c + "-" + d + "-" + e
+    var isbn13Components: [String] {
+        [countryCode.string,
+        String(registrationGroup.value),
+        String(registrant.value),
+        String(publication.value),
+        isbn13Checksum.digit.description]
     }
 }

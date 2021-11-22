@@ -14,16 +14,13 @@ struct Registration: Parsable {
     
     static func parse(_ input: State<Input>) throws -> State<Self> {
         let resultA = try RegistrationGroup.parse(input)
-        
-        // TODO: Parse optional hyphen.
-        
-        let resultB = try Registrant.parse(resultA)
-    
-        // TODO: Parse optional hyphen.
-        
-        let resultC = try Publication.parse(resultB)
-
-        return resultC
+        let resultB = try OptionalHyphen.parse(resultA)
+        print(resultB.stream)
+        let resultC = try Registrant.parse(resultB)
+        print(resultC.stream)
+        let resultD = try OptionalHyphen.parse(resultC)
+        let resultE = try Publication.parse(resultD)
+        return resultE
     }
 }
 
@@ -44,9 +41,10 @@ struct RegistrationGroup: Parsable {
         let countryCode = input.value
         // TODO: Calculate this more efficiently.
         guard let sevenDigitsAfterCountryCode = Int(
-            input.stream.prefix(7)
+            input.stream
                 .split { $0.isHyphen }
-                .joined())
+                .joined()
+                .prefix(7))
         else {
             throw ISBN.Error.invalidCharacter
             // TODO: Make error more specific
@@ -91,9 +89,11 @@ struct Registrant: Parsable {
         // through State.
         let prefix = input.value.countryCode.string + "-" + String(input.value.registrationGroup.value)
         
-        let length = try RangeMessage.Container().isbnRangeMessage.registrationGroups.group.first {
-            $0.prefix == prefix
-        }?.length(for: input.value.sevenDigitsAfterCountryCode)
+        let length = try RangeMessage.Container()
+            .isbnRangeMessage
+            .registrationGroups.group.first {
+                $0.prefix == prefix
+            }?.length(for: input.value.sevenDigitsAfterCountryCode)
         
         guard let length = length else {
             throw ISBN.Error.invalidRange

@@ -18,27 +18,73 @@ final class ISBN2Tests: XCTestCase {
         XCTAssertFalse(container.isbnRangeMessage.eanUccPrefixes.eanUcc.isEmpty)
     }
     
-    func testGermanISBN10() throws {
+    func testParseISBN10() throws {
         // When
         let isbn = try ISBN("3484701536")
         
         // Then
-        XCTAssertEqual(isbn.hyphenated(format: .isbn13), "978-3-484-70153-3")
-        XCTAssertEqual(isbn.hyphenated(format: .isbn10), "3-484-70153-6")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: true),
+                       "978-3-484-70153-3")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: false),
+                       "9783484701533")
+        XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: true),
+                       "3-484-70153-6")
+        XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: false),
+                       "3484701536")
     }
     
-    func testGermanISBN13() throws {
+    func testParseHyphenatedISBN10() throws {
         // When
-        let isbn = try ISBN("978-3484701533")
+        let isbn = try ISBN("3-484-70153-6")
         
         // Then
-        XCTAssertEqual(isbn.hyphenated(format: .isbn13), "978-3-484-70153-3")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: true),
+                       "978-3-484-70153-3")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: false),
+                       "9783484701533")
+        XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: true),
+                       "3-484-70153-6")
+        XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: false),
+                       "3484701536")
+    }
+    
+    func testParseISBN13() throws {
+        // When
+        let isbn = try ISBN("9783484701533")
+        
+        // Then
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: true),
+                       "978-3-484-70153-3")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: false),
+                       "9783484701533")
+    }
+    
+    func testParseHyphenatedISBN13() throws {
+        // When
+        let isbn = try ISBN("978-3-484-70153-3")
+        
+        // Then
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: true),
+                       "978-3-484-70153-3")
+        XCTAssertEqual(isbn.string(format: .isbn13, hyphenated: false),
+                       "9783484701533")
     }
 }
 
-// TODO: Allow returning a hyphenated ISBN10.
 // TODO: Return correct checksum digit.
-// TODO: Consider returning nil 
-// TODO: Handle pre-hyphenated ISBN strings
+
+// Maybe:
 // TODO: Store registration group agency with ISBN.
+// TODO: Consider returning nil instead of throwing an error
+
+// Testing:
+// TODO: Test musicland ISBNs (and make sure they return nil for the ISBN10 string)
+// TODO: Test more ISBNs from around the world
+// TODO: Test ISBN with X as checksum
+
+// Organization:
+// TODO: Change branch to master
+
+// Efficiency:
 // TODO: Avoid re-loading range map every time we parse
+// TODO: Avoid decoding RangeMessage.Container *twice*
