@@ -5,42 +5,25 @@
 //  Created by Ian Sampson on 2020-05-22.
 //
 
-// TODO: Rename to ISBN after removing ISBN.swift.
-// TODO: Expose public API
-// TODO: Consider using smaller integers for storage
 // TODO: Conform to Codable
+// TODO: Consider using smaller integers for storage
+// TODO: Rename to ISBN after removing ISBN.swift
+// TODO: Avoid loading range message multiple times
 
-struct ISBN: Hashable {
-    let countryCode: CountryCode
-    let registrationGroup: RegistrationGroup
-    let registrant: Registrant
-    let publication: Publication
+public struct ISBN: Hashable {
+    public let countryCode: CountryCode
+    public let registrationGroup: RegistrationGroup
+    public let registrant: Registrant
+    public let publication: Publication
     
-    enum Format {
+    public enum Format {
         case isbn10
         case isbn13
-    }
-    
-    var isbn13Checksum: Checksum {
-        let digits = countryCode.rawValue.integers
-            + registrationGroup.value.integers
-            + registrant.value.integers
-            + publication.value.integers
-        return try! Checksum(digits, format: .isbn13)
-        // TODO: Unwrap more safely.
-    }
-    
-    var isbn10checksum: Checksum {
-        let digits = registrationGroup.value.integers
-            + registrant.value.integers
-            + publication.value.integers
-        return try! Checksum(digits, format: .isbn10)
-        // TODO: Unwrap more safely.
     }
 }
 
 extension ISBN {
-    init(_ string: String) throws {
+    public init(_ string: String) throws {
         let input = State(stream: string[...], value: ())
         do {
             self = try ISBN13.parse(input).value
@@ -140,14 +123,14 @@ struct ISBN13: Parsable {
 }
 
 extension ISBN {
-    var string: String {
+    public var string: String {
         guard let string = string(format: .isbn13, hyphenated: true) else {
             fatalError()
         }
         return string
     }
     
-    func string(format: Format, hyphenated: Bool = true) -> String? {
+    public func string(format: Format, hyphenated: Bool = true) -> String? {
         switch format {
         case .isbn13:
             if hyphenated {
@@ -166,6 +149,23 @@ extension ISBN {
                 return components.joined()
             }
         }
+    }
+    
+    var isbn13Checksum: Checksum {
+        let digits = countryCode.rawValue.integers
+            + registrationGroup.value.integers
+            + registrant.value.integers
+            + publication.value.integers
+        return try! Checksum(digits, format: .isbn13)
+        // TODO: Unwrap more safely.
+    }
+    
+    var isbn10checksum: Checksum {
+        let digits = registrationGroup.value.integers
+            + registrant.value.integers
+            + publication.value.integers
+        return try! Checksum(digits, format: .isbn10)
+        // TODO: Unwrap more safely.
     }
     
     var isbn10Components: [String]? {

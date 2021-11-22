@@ -22,8 +22,8 @@ struct Registration: Parsable {
     }
 }
 
-struct RegistrationGroup: Parsable, Hashable {
-    let value: Int
+public struct RegistrationGroup: Parsable, Hashable {
+    public let value: Int
     
     typealias Input = CountryCode
     typealias Output = (
@@ -70,8 +70,8 @@ struct RegistrationGroup: Parsable, Hashable {
     }
 }
 
-struct Registrant: Parsable, Hashable {
-    let value: Int
+public struct Registrant: Parsable, Hashable {
+    public let value: Int
     
     typealias Input = RegistrationGroup.Output
     
@@ -115,8 +115,8 @@ struct Registrant: Parsable, Hashable {
     }
 }
 
-struct Publication: Parsable, Hashable {
-    let value: Int
+public struct Publication: Parsable, Hashable {
+    public let value: Int
     
     typealias Input = Registrant.Output
     typealias Output = Registration
