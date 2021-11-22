@@ -88,9 +88,6 @@ final class ISBN2Tests: XCTestCase {
 // TODO: Test musicland ISBNs (and make sure they return nil for the ISBN10 string)
 // TODO: Test more ISBNs from around the world
 
-// Organization:
-// TODO: Change branch to master
-
 // Efficiency:
 // TODO: Avoid re-loading range map every time we parse
 // TODO: Avoid decoding RangeMessage.Container *twice*

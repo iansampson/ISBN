@@ -6,7 +6,11 @@
 //
 
 // TODO: Rename to ISBN after removing ISBN.swift.
-struct ISBN {
+// TODO: Expose public API
+// TODO: Consider using smaller integers for storage
+// TODO: Conform to Codable
+
+struct ISBN: Hashable {
     let countryCode: CountryCode
     let registrationGroup: RegistrationGroup
     let registrant: Registrant

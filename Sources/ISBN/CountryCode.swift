@@ -25,7 +25,7 @@ extension CountryCode {
     }
 }
 
-extension CountryCode: Parsable {
+extension CountryCode: Parsable, Hashable {
     typealias Input = ()
     typealias Output = Self
     
