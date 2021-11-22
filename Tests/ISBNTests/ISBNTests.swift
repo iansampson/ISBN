@@ -80,8 +80,6 @@ final class ISBN2Tests: XCTestCase {
     }
 }
 
-// TODO: Return correct checksum digit.
-
 // Maybe:
 // TODO: Store registration group agency with ISBN.
 // TODO: Consider returning nil instead of throwing an error
@@ -89,7 +87,6 @@ final class ISBN2Tests: XCTestCase {
 // Testing:
 // TODO: Test musicland ISBNs (and make sure they return nil for the ISBN10 string)
 // TODO: Test more ISBNs from around the world
-// TODO: Test ISBN with X as checksum
 
 // Organization:
 // TODO: Change branch to master
