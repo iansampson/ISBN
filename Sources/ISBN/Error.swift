@@ -16,6 +16,7 @@ extension ISBN {
         case missingChecksum
         case emptyString
         case invalidRange
+        case expectedEmptyStringAfterISBN
     }
 }
 

@@ -64,6 +64,10 @@ struct ISBN10: Parsable {
             )
         )
         
+        guard resultE.stream.isEmpty else {
+            throw ISBN.Error.expectedEmptyStringAfterISBN
+        }
+        
         let isbn = ISBN(
             countryCode: resultA.value,
             registrationGroup: resultC.value.registrationGroup,
@@ -102,6 +106,10 @@ struct ISBN13: Parsable {
                 )
             )
         )
+        
+        guard resultE.stream.isEmpty else {
+            throw ISBN.Error.expectedEmptyStringAfterISBN
+        }
         
         let isbn = ISBN(
             countryCode: resultA.value,
