@@ -78,6 +78,22 @@ final class ISBN2Tests: XCTestCase {
         XCTAssertEqual(isbn.string(format: .isbn10, hyphenated: true),
                        "3-598-21507-X")
     }
+    
+    func testDecodeAndEncodeISBN() throws {
+        // Given
+        let string = "\"978-3-484-70153-3\""
+        guard let data = string.data(using: .utf8) else {
+            fatalError()
+        }
+        
+        // When
+        let isbn = try JSONDecoder().decode(ISBN.self, from: data)
+        let encodedISBN = try JSONEncoder().encode(isbn)
+        
+        // Then
+        XCTAssertEqual(isbn.string, "978-3-484-70153-3")
+        XCTAssertEqual(encodedISBN, data)
+    }
 }
 
 // Maybe:
@@ -91,3 +107,4 @@ final class ISBN2Tests: XCTestCase {
 // Efficiency:
 // TODO: Avoid re-loading range map every time we parse
 // TODO: Avoid decoding RangeMessage.Container *twice*
+// TODO: Consider using smaller integers for storage

@@ -5,11 +5,6 @@
 //  Created by Ian Sampson on 2020-05-22.
 //
 
-// TODO: Conform to Codable
-// TODO: Consider using smaller integers for storage
-// TODO: Rename to ISBN after removing ISBN.swift
-// TODO: Avoid loading range message multiple times
-
 public struct ISBN: Hashable {
     public let countryCode: CountryCode
     public let registrationGroup: RegistrationGroup
