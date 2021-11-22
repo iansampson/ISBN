@@ -1,107 +1,166 @@
 //
 //  ISBN.swift
+//  
 //
-//
-//  Created by Ian Sampson on 2019-09-12.
+//  Created by Ian Sampson on 2020-05-22.
 //
 
-// TODO: Allow unhyphenated ISBNs.
-// TODO: Allow method for comparing ISBN10 and ISBN13
-//       (which is already possible with Equatable).
-// TODO: Implement Codable (by encoding the ISBN
-//       to a string – with hyphenation).
-// TODO: Add .string func (with or without hyphenation).
-
-struct ISBN: Equatable {
+// TODO: Rename to ISBN after removing ISBN.swift.
+struct ISBN {
     let countryCode: CountryCode
-    let registrationGroup: Int
-    let registrant: Int
-    let publication: Int
+    let registrationGroup: RegistrationGroup
+    let registrant: Registrant
+    let publication: Publication
     
     enum Format {
         case isbn10
         case isbn13
     }
     
-    init(string: String) throws {
-        // TODO: Consider renaming to init(_ string: String).
-        
-        // Split string by hyphens.
-        let substrings = string.split { $0.isHyphen }
-        
-        // Retrieve registration elements
-        // (group, registrant, and publication).
-        let elementsBeforeChecksum: [Int] = try substrings
-            .dropLast()
-            .map {
-                guard let integer = Int($0) else {
-                    throw Error.invalidCharacter
-                }
-                return integer
-            }
-        
-        // Retrieve last character for checksum.
-        guard let lastSubstring = substrings.last else {
-            throw Error.emptyString
+    var isbn13Checksum: Checksum {
+        let digits = countryCode.rawValue.integers
+            + registrationGroup.value.integers
+            + registrant.value.integers
+            + publication.value.integers
+        return try! Checksum(digits, format: .isbn13)
+        // TODO: Unwrap more safely.
+    }
+    
+    var isbn10checksum: Checksum {
+        let digits = registrationGroup.value.integers
+            + registrant.value.integers
+            + publication.value.integers
+        return try! Checksum(digits, format: .isbn10)
+        // TODO: Unwrap more safely.
+    }
+}
+
+extension ISBN {
+    init(_ string: String) throws {
+        let input = State(stream: string[...], value: ())
+        do {
+            self = try ISBN13.parse(input).value
+        } catch {
+            self = try ISBN10.parse(input).value
         }
-        let lastString = String(lastSubstring)
-        guard lastSubstring.count == 1 else {
-            throw Error.invalidSubstring(lastString)
-        }
-        let lastCharacter = Character(lastString)
-        // TODO: Consider abstracting these two into a struct.
+        // TODO: Consider what to do with remaining input.
+        // TODO: Use specific error.
+        // TODO: Clean up nested do-catch pattern.
         
-        // Switch on ISBN format.
-        switch elementsBeforeChecksum.count {
-        // TODO: Check total length of string.
-        // TODO: Initialize a format and switch on that.
-        case 3:
-            try self.init(
-                countryCode: .bookland,
-                registrationElements: elementsBeforeChecksum
+        // TODO: Try parsing country code and *then*
+        // choose between ISBN10 or ISBN13.
+    }
+}
+
+// TODO: Encapsulate boilerplate between ISBN10 and ISBN13 in a common function
+
+struct ISBN10: Parsable {
+    typealias Input = ()
+    typealias Output = ISBN
+    
+    static func parse(_ input: State<Input>) throws -> State<Output> {
+        // Assume ISBN10 belongs to the bookland country code
+        // CountryCode
+        let resultA = State(
+            stream: input.stream,
+            value: CountryCode.bookland
+        )
+        let resultB = try OptionalHyphen.parse(resultA)
+        let resultC = try Registration.parse(resultB)
+        let resultD = try OptionalHyphen.parse(resultC)
+        let resultE = try Checksum.parse(
+            State(
+                stream: resultD.stream,
+                value: (
+                    input.stream
+                        .split { $0.isHyphen }
+                        .joined()
+                        .prefix(9)
+                        .map { $0.wholeNumberValue! },
+                    .isbn10
+                )
             )
-            try validateChecksum(lastCharacter, format: .isbn10)
-            
-        case 4:
-            try self.init(
-                countryCode: try CountryCode(elementsBeforeChecksum[0]),
-                registrationElements: elementsBeforeChecksum.dropFirst()
+        )
+        
+        let isbn = ISBN(
+            countryCode: resultA.value,
+            registrationGroup: resultC.value.registrationGroup,
+            registrant: resultC.value.registrant,
+            publication: resultC.value.publication
+        )
+        
+        return State(
+            stream: resultE.stream,
+            value: isbn
+        )
+    }
+}
+
+struct ISBN13: Parsable {
+    typealias Input = ()
+    typealias Output = ISBN
+    
+    static func parse(_ input: State<Input>) throws -> State<Output> {
+        let resultA = try CountryCode.parse(input)
+        let resultB = try OptionalHyphen.parse(resultA)
+        let resultC = try Registration.parse(resultB)
+        let resultD = try OptionalHyphen.parse(resultC)
+        let resultE = try Checksum.parse(
+            State(
+                stream: resultD.stream,
+                value: (
+                    input.stream
+                        .split { $0.isHyphen }
+                        .joined()
+                        .prefix(12)
+                        .map { $0.wholeNumberValue! },
+                    // TODO: Make this an extension somewhere else.
+                    // TODO: Make this more efficient.
+                    .isbn13
+                )
             )
-            try validateChecksum(lastCharacter, format: .isbn13)
-        // TODO: Use guard instead of force unwrapping.
-            
-        default:
-            throw Error.invalidHyphenation
-            // TODO: Distinguish between invalid hyphenation
-            // and an empty string (or an unhyphenated string).
+        )
+        
+        let isbn = ISBN(
+            countryCode: resultA.value,
+            registrationGroup: resultC.value.registrationGroup,
+            registrant: resultC.value.registrant,
+            publication: resultC.value.publication
+        )
+        
+        return State(
+            stream: resultE.stream,
+            value: isbn
+        )
+    }
+}
+
+extension ISBN {
+    func hyphenated(format: Format) -> String {
+        switch format {
+        case .isbn13:
+            return hyphenatedISBN13
+        case .isbn10:
+            return hyphenatedISBN10
         }
     }
     
-    private func validateChecksum(_ character: Character, format: Format) throws {
-        let checksumToValidate = try Checksum(character, format: format)
-        let generatedChecksum = self.checksum(format: format)
-        guard checksumToValidate == generatedChecksum else {
-            throw Error.invalidChecksum(
-                stored: checksumToValidate.digit.rawValue,
-                generated: generatedChecksum.digit.rawValue
-            )
-        }
+    var hyphenatedISBN10: String {
+        let b = String(registrationGroup.value)
+        let c = String(registrant.value)
+        let d = String(publication.value)
+        let e = isbn10checksum.digit.description
+        
+        return b + "-" + c + "-" + d + "-" + e
     }
     
-    private init<S>(countryCode: CountryCode, registrationElements: S) throws
-        where S : Collection, S.Element == Int, S.Index == Int {
-            let registrationLength = registrationElements
-                .flatMap { $0.digits }
-                .count
-            guard registrationLength == 9 else {
-                throw Error.invalidLength(registrationLength)
-            }
-            // TODO: Consider checking the length of the string instead.
-            // TODO: Consider using registrationDigits.
-            
-            self.countryCode = countryCode
-            registrationGroup = registrationElements[0]
-            registrant = registrationElements[1]
-            publication = registrationElements[2]
+    var hyphenatedISBN13: String {
+        let a = countryCode.string
+        let b = String(registrationGroup.value)
+        let c = String(registrant.value)
+        let d = String(publication.value)
+        let e = isbn13Checksum.digit.description
+        
+        return a + "-" + b + "-" + c + "-" + d + "-" + e
     }
 }

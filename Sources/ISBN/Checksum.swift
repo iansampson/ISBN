@@ -32,7 +32,7 @@ extension Checksum {
 
 // MARK: - ISBN
 
-extension ISBN {
+/*extension ISBN {
     func checksum(format: Format) -> Checksum {
         switch format {
         case .isbn10:
@@ -43,20 +43,20 @@ extension ISBN {
     }
     // TODO: Avoid force unwrapping.
     
-    private var isbn10Checksum: Int {
+    /*private var isbn10Checksum: Int {
         Checksum.sum(first9Digits: registrationDigits)
     }
     
     private var isbn13Checksum: Int {
         Checksum.sum(first9Digits: countryCode.rawValue.digits + registrationDigits)
-    }
+    }*/
     
     private var registrationDigits: [Int] {
         registrationGroup.digits
         + registrant.digits
         + publication.digits
     }
-}
+}*/
 
 
 // MARK: - Calculation
@@ -151,9 +151,7 @@ extension Checksum: Parsable {
         let integers = input.value.digitsBeforeChecksum
         
         guard let nextDigit = input.stream.first else {
-            fatalError()
-            // TODO: Consider throwing Error.stringTooShort instead
-            // Or Error.missingChecksum
+            throw ISBN.Error.missingChecksum
         }
         
         guard let parsedChecksum = nextDigit.wholeNumberValue else {

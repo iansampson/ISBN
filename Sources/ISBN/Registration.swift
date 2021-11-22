@@ -52,10 +52,12 @@ struct RegistrationGroup: Parsable {
             // TODO: Make error more specific
         }
         
-        guard let length = Length
-            .countryCodes[countryCode]?
-            .length(for: sevenDigitsAfterCountryCode)
-        else {
+        // TODO: Abstract into method on Prefixes
+        let length = try RangeMessage.Container().isbnRangeMessage.eanUccPrefixes.eanUcc.first {
+            $0.prefix == countryCode.string
+        }?.length(for: sevenDigitsAfterCountryCode)
+        
+        guard let length = length else {
             throw ISBN.Error.invalidRange
         }
         
@@ -88,10 +90,12 @@ struct Registrant: Parsable {
         // TODO: Avoid reallocating String if possible. Perhaps passing Substring
         // through State.
         let prefix = input.value.countryCode.string + "-" + String(input.value.registrationGroup.value)
-        guard let length = Length
-            .registrationGroups[prefix]?
-            .length(for: input.value.sevenDigitsAfterCountryCode)
-        else {
+        
+        let length = try RangeMessage.Container().isbnRangeMessage.registrationGroups.group.first {
+            $0.prefix == prefix
+        }?.length(for: input.value.sevenDigitsAfterCountryCode)
+        
+        guard let length = length else {
             throw ISBN.Error.invalidRange
         }
         let stream = input.stream.dropFirst(length)

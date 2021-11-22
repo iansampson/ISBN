@@ -13,6 +13,7 @@ extension ISBN {
         case invalidSubstring(String)
         case invalidChecksum(stored: Int, generated: Int)
         case invalidLength(Int)
+        case missingChecksum
         case emptyString
         case invalidRange
     }
