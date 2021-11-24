@@ -59,6 +59,15 @@ final class ISBN2Tests: XCTestCase {
                        "9783484701533")
     }
     
+    // TODO: Rename this test
+    func testParseISBN13B() throws {
+        // When
+        let isbn = try ISBN("978-0-8223-5656-1")
+        
+        // Then
+        XCTAssertEqual(isbn.string, "978-0-8223-5656-1")
+    }
+    
     func testParseHyphenatedISBN13() throws {
         // When
         let isbn = try ISBN("978-3-484-70153-3")
@@ -95,6 +104,9 @@ final class ISBN2Tests: XCTestCase {
         XCTAssertEqual(encodedISBN, data)
     }
 }
+// TODO: Consider removing (or ignoring) hyphens
+// during parsing (in case they *are* in the wrong place,
+// the number itself is still readable)
 
 // Maybe:
 // TODO: Store registration group agency with ISBN.

@@ -25,4 +25,6 @@ extension Checksum.Digit {
         case invalidDigit
     }
 }
+
 // TODO: Consider merging witht ISBN.Error.
+// TODO: Record *where* the error occured.

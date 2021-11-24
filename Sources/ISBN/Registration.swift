@@ -87,11 +87,25 @@ public struct Registrant: Parsable, Hashable {
         // through State.
         let prefix = input.value.countryCode.string + "-" + String(input.value.registrationGroup.value)
         
+        // TODO: Avoid re-calculating if possible
+        guard let nextSevenDigits = Int(
+            input.stream
+                .split { $0.isHyphen }
+                .joined()
+                .prefix(7))
+        else {
+            throw ISBN.Error.invalidCharacter
+            // TODO: Make error more specific
+        }
+        // TODO: Check length at the beginning
+        // TODO: Double-check length here
+        
+        
         let length = try RangeMessage.Container()
             .isbnRangeMessage
             .registrationGroups.group.first {
                 $0.prefix == prefix
-            }?.length(for: input.value.sevenDigitsAfterCountryCode)
+            }?.length(for: nextSevenDigits)
         
         guard let length = length else {
             throw ISBN.Error.invalidRange
