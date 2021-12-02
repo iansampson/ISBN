@@ -40,10 +40,10 @@ between valid ISBN components).
 You can access the individual components as properties:
 
 ``` Swift
-isbn.countryCode
-isbn.registrationGroup
-isbn.registrant
-isbn.publication
+isbn.countryCode // .bookland
+isbn.registrationGroup.value // 0
+isbn.registrant.value // 8223
+isbn.publication.value // 5656
 ```
 
 To re-encode the ISBN as a normalized string,
