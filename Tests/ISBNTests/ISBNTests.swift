@@ -104,6 +104,7 @@ final class ISBN2Tests: XCTestCase {
         XCTAssertEqual(encodedISBN, data)
     }
 }
+
 // TODO: Consider removing (or ignoring) hyphens
 // during parsing (in case they *are* in the wrong place,
 // the number itself is still readable)
