@@ -1,6 +1,6 @@
 # ISBN
 
-A Swift package for parsing ISBN strings into a type-safe struct.
+A Swift package for parsing ISBN strings into a type-safe structure.
 The package supports both ISBN-10 and ISBN-13
 and can output normalized strings in a variety of formats.
 Besides validating the checksum digit, the parser also divides the ISBN
